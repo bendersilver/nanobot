@@ -1,3 +1,3 @@
-module github.com/bendersilver/tbot
+module github.com/bendersilver/nanobot
 
 go 1.20
