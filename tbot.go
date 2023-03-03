@@ -1,4 +1,4 @@
-package tbot
+package nanobot
 
 import (
 	"bytes"
