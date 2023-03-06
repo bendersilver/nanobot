@@ -40,11 +40,12 @@ type Body struct {
 }
 
 type Bot struct {
-	uri string
+	Token, uri string
 }
 
 func New(token string) (*Bot, error) {
 	var b Bot
+	b.Token = token
 	b.uri = fmt.Sprintf(tURL, token)
 	r := b.getMe()
 	if r.Status != OK {
