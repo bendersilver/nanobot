@@ -31,12 +31,10 @@ type Result struct {
 }
 
 type response struct {
-	OK   bool   `json:"ok"`
-	Code int    `json:"error_code"`
-	Desc string `json:"description"`
-	Res  struct {
-		ID int64 `json:"message_id"`
-	} `json:"result"`
+	OK   bool            `json:"ok"`
+	Code int             `json:"error_code"`
+	Desc string          `json:"description"`
+	Res  json.RawMessage `json:"result"`
 }
 
 // Body -
@@ -65,24 +63,16 @@ func New(token string) (*Bot, error) {
 
 // DeleteMessage -
 func (b *Bot) DeleteMessage(chatID, messageID int64) *Result {
-	r := b.req("deleteMessage", map[string]int64{
+	r, _ := b.req("deleteMessage", map[string]int64{
 		"chat_id":    chatID,
 		"message_id": messageID,
 	})
-
-	if r.Status != OK {
-		switch r.Desc {
-		case "Bad Request: chat not found":
-			r.Status = BadChat
-		}
-
-	}
 	return r
 }
 
 // SendMessage -
 func (b *Bot) SendMessage(arg *Body) *Result {
-	r := b.req("sendMessage", arg)
+	r, body := b.req("sendMessage", arg)
 
 	if r.Status != OK {
 		switch r.Desc {
@@ -90,16 +80,22 @@ func (b *Bot) SendMessage(arg *Body) *Result {
 			r.Status = BadChat
 		}
 
+	} else {
+		var res struct {
+			ID int64 `json:"message_id"`
+		}
+		json.Unmarshal(body, &res)
+		r.ID = res.ID
 	}
 	return r
 }
 
 func (b *Bot) getMe() *Result {
-	r := b.req("getMe", nil)
+	r, _ := b.req("getMe", nil)
 	return r
 }
 
-func (b *Bot) req(met string, arg any) (res *Result) {
+func (b *Bot) req(met string, arg any) (res *Result, by json.RawMessage) {
 	res = new(Result)
 	var resp *http.Response
 	var err error
@@ -142,9 +138,8 @@ func (b *Bot) req(met string, arg any) (res *Result) {
 		if body.Code == 401 || body.Code == 403 {
 			res.Status = BadToken
 		}
-	} else {
-		res.Status = OK
-		res.ID = body.Res.ID
+		return res, nil
 	}
-	return
+	res.Status = OK
+	return res, body.Res
 }
