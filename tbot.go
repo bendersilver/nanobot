@@ -7,16 +7,22 @@ import (
 	"net/http"
 )
 
+// Bad -
 type Bad int
 
 const (
+	// OK -
 	OK Bad = iota
+	// BadChat -
 	BadChat
+	// BadToken -
 	BadToken
+	// BadOther -
 	BadOther
 )
 const tURL = "https://api.telegram.org/bot%s/"
 
+// Result -
 type Result struct {
 	Desc   string
 	Status Bad
@@ -33,16 +39,19 @@ type response struct {
 	} `json:"result"`
 }
 
+// Body -
 type Body struct {
 	ChatID int64  `json:"chat_id"`
 	Text   string `json:"text"`
 	Mode   string `json:"parse_mode,omitempty"`
 }
 
+// Bot -
 type Bot struct {
 	Token, uri string
 }
 
+// New -
 func New(token string) (*Bot, error) {
 	var b Bot
 	b.Token = token
@@ -54,6 +63,24 @@ func New(token string) (*Bot, error) {
 	return &b, nil
 }
 
+// DeleteMessage -
+func (b *Bot) DeleteMessage(chatID, messageID int64) *Result {
+	r := b.req("deleteMessage", map[string]int64{
+		"chat_id":    chatID,
+		"message_id": messageID,
+	})
+
+	if r.Status != OK {
+		switch r.Desc {
+		case "Bad Request: chat not found":
+			r.Status = BadChat
+		}
+
+	}
+	return r
+}
+
+// SendMessage -
 func (b *Bot) SendMessage(arg *Body) *Result {
 	r := b.req("sendMessage", arg)
 
@@ -72,7 +99,7 @@ func (b *Bot) getMe() *Result {
 	return r
 }
 
-func (b *Bot) req(met string, arg *Body) (res *Result) {
+func (b *Bot) req(met string, arg any) (res *Result) {
 	res = new(Result)
 	var resp *http.Response
 	var err error
