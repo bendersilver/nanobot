@@ -3,7 +3,6 @@ package nanobot
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -50,16 +49,16 @@ type Bot struct {
 }
 
 // New -
-func New(token string) (*Bot, error) {
-	var b Bot
-	b.Token = token
-	b.uri = fmt.Sprintf(tURL, token)
-	r := b.getMe()
-	if r.Status != OK {
-		return nil, fmt.Errorf(r.Desc)
-	}
-	return &b, nil
-}
+// func New(token string) (*Bot, error) {
+// 	var b Bot
+// 	b.Token = token
+// 	b.uri = fmt.Sprintf(tURL, token)
+// 	r := b.getMe()
+// 	if r.Status != OK {
+// 		return nil, fmt.Errorf(r.Desc)
+// 	}
+// 	return &b, nil
+// }
 
 // DeleteMessage -
 func (b *Bot) DeleteMessage(chatID, messageID int64) *Result {
