@@ -70,14 +70,27 @@ func (b *Bot) DeleteMessage(chatID, messageID int64) *Result {
 	return r
 }
 
+// {
+// 	"ok": false,
+// 	"error_code": 400,
+// 	"description": "[Error]: Bad Request: user not found"
+// }
+
 // SendMessage -
 func (b *Bot) SendMessage(arg *Body) *Result {
 	r, body := b.req("sendMessage", arg)
 
 	if r.Status != OK {
 		switch r.Desc {
-		case "Bad Request: chat not found":
+		case "Bad Request: chat not found",
+			"Forbidden: user is deactivated",
+			"Forbidden: bot was blocked by the user",
+			"Forbidden: bot can't send messages to bots":
 			r.Status = BadChat
+		case "Bad Request: message text is empty",
+			"Bad Request: wrong parameter action in request",
+			"Forbidden: bot was kicked from the group chat":
+			r.Status = BadOther
 		}
 
 	} else {
@@ -135,9 +148,6 @@ func (b *Bot) req(met string, arg any) (res *Result, by json.RawMessage) {
 		res.Desc = body.Desc
 		res.Code = body.Code
 		res.Status = BadOther
-		if body.Code == 401 || body.Code == 403 {
-			res.Status = BadToken
-		}
 		return res, nil
 	}
 	res.Status = OK
