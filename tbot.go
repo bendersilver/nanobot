@@ -17,6 +17,8 @@ const (
 	BadChat
 	// BadToken -
 	BadToken
+	// BadToken -
+	Sleep
 	// BadOther -
 	BadOther
 )
@@ -31,10 +33,14 @@ type Result struct {
 }
 
 type response struct {
-	OK   bool            `json:"ok"`
-	Code int             `json:"error_code"`
-	Desc string          `json:"description"`
-	Res  json.RawMessage `json:"result"`
+	OK    bool            `json:"ok"`
+	Code  int             `json:"error_code"`
+	Desc  string          `json:"description"`
+	Res   json.RawMessage `json:"result"`
+	Parms struct {
+		MtoChatID  int64 `json:"migrate_to_chat_id"`
+		RetryAfter int   `json:"retry_after"`
+	} `json:"parameters"`
 }
 
 // Body -
@@ -69,6 +75,8 @@ func (b *Bot) DeleteMessage(chatID, messageID int64) *Result {
 	})
 	return r
 }
+
+// func (b *Bot) SendDocument(arg *Body) *Result {}
 
 // {
 // 	"ok": false,
