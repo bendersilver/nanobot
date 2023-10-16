@@ -25,15 +25,6 @@ type FileUpload struct {
 	ParseMode ParseMode
 }
 
-type ParseMode = string
-
-const (
-	ModeDefault    ParseMode = ""
-	ModeMarkdown   ParseMode = "Markdown"
-	ModeMarkdownV2 ParseMode = "MarkdownV2"
-	ModeHTML       ParseMode = "HTML"
-)
-
 type media struct {
 	Type      InputMedia `json:"type"`
 	Media     string     `json:"media"`

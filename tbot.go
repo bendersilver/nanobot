@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const tURL = "https://api.telegram.org/bot%s/"
+
 // Bad -
 type Bad int
 
@@ -22,7 +24,15 @@ const (
 	// BadOther -
 	BadOther
 )
-const tURL = "https://api.telegram.org/bot%s/"
+
+type ParseMode = string
+
+const (
+	ModeDefault    ParseMode = ""
+	ModeMarkdown   ParseMode = "Markdown"
+	ModeMarkdownV2 ParseMode = "MarkdownV2"
+	ModeHTML       ParseMode = "HTML"
+)
 
 type Result struct {
 	Status Bad
