@@ -99,6 +99,8 @@ func chekOK(rsp *http.Response) (res *Result) {
 				res.Status = BadChat
 			}
 		}
+	} else {
+		res.Status = OK
 	}
 	return
 }

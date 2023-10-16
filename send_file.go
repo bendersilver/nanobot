@@ -32,7 +32,7 @@ type media struct {
 	ParseMode ParseMode  `json:"parse_mode,omitempty"`
 }
 
-func uploadFiles(url string, chatID int64, fileType InputMedia, items ...*FileUpload) (b []byte, err error) {
+func uploadFiles(url string, chatID int64, fileType InputMedia, items ...*FileUpload) (*Result, error) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 
@@ -103,7 +103,7 @@ func uploadFiles(url string, chatID int64, fileType InputMedia, items ...*FileUp
 			return nil, err
 		}
 	}
-	err = w.WriteField("chat_id", fmt.Sprint(chatID))
+	err := w.WriteField("chat_id", fmt.Sprint(chatID))
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +111,20 @@ func uploadFiles(url string, chatID int64, fileType InputMedia, items ...*FileUp
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", w.FormDataContentType())
-	res, err := new(http.Client).Do(req)
+	rsp, err := new(http.Client).Do(req)
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer res.Body.Close()
-	b, err = io.ReadAll(res.Body)
-	if err != nil {
-		return
-	}
-	return
+	return chekOK(rsp), nil
 }
 
-func (b *Bot) SendDocuments(chatID int64, inputMedia InputMedia, fls ...*FileUpload) error {
-	byt, err := uploadFiles(b.uri,
+func (b *Bot) SendDocuments(chatID int64, inputMedia InputMedia, fls ...*FileUpload) (*Result, error) {
+	return uploadFiles(b.uri,
 		chatID,
 		inputMedia,
 		fls...)
-	if err != nil {
-		return err
-	}
-	return fmt.Errorf("%s", byt)
 }
